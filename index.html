@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maid Service Pricing Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            padding-top: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 800px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        input[type="text"], input[type="email"], input[type="tel"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .extras {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .extra-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .extra-item img {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .extra-item:hover img, .extra-item.selected img {
+            transform: translateY(-5px);
+            border-color: #007bff;
+        }
+
+        .extra-item .text {
+            margin-top: 10px;
+        }
+
+        .extra-item .text .price {
+            font-weight: bold;
+        }
+
+        .price-display {
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .frequency {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .frequency-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            cursor: pointer;
+            width: 100px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .frequency-item.selected {
+            transform: translateY(-5px);
+            border-color: #007bff;
+        }
+
+        .frequency-item .discount-text {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .label-left {
+            text-align: left;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .header-gap {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="pricingForm">
+            <div id="step1" class="step active">
+                <h2>Choose Your Services</h2>
+                <div class="label-left">Bedrooms: <span id="roomsValue">0</span></div>
+                <input type="range" id="rooms" name="rooms" min="0" max="10" value="0" oninput="updatePrice()">
+                
+                <div class="label-left">Bathrooms: <span id="washroomsValue">0</span></div>
+                <input type="range" id="washrooms" name="washrooms" min="0" max="10" value="0" oninput="updatePrice()">
+                
+                <div class="header-gap"><h3>Select Extras</h3></div>
+                <div id="extras" class="extras">
+                    <div class="extra-item" data-name="Deep Cleaning" data-price="125" data-quantity="false">
+                        <img src="https://i.imgur.com/QXilrVt.png" alt="Deep Cleaning">
+                        <div class="text">Deep Cleaning<br><span class="price">$125</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Have Pets" data-price="25" data-quantity="false">
+                        <img src="https://i.imgur.com/QZNCI6t.png" alt="Have Pets">
+                        <div class="text">Have Pets<br><span class="price">$25</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Oven Deep Cleaning" data-price="40" data-quantity="true">
+                        <img src="https://i.imgur.com/P1iBFdc.png" alt="Oven Deep Cleaning">
+                        <div class="text">Oven Deep Cleaning<br><span class="price">$40/oven</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Empty Fridge Deep Cleaning" data-price="25" data-quantity="true">
+                        <img src="https://i.imgur.com/7YoMYnO.png" alt="Empty Fridge Deep Cleaning">
+                        <div class="text">Empty Fridge Deep Cleaning<br><span class="price">$25/fridge</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Second Kitchen" data-price="50" data-quantity="false">
+                        <img src="https://i.imgur.com/hhcBE6X.png" alt="Second Kitchen">
+                        <div class="text">Second Kitchen<br><span class="price">$50</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Walls" data-price="20" data-quantity="true">
+                        <img src="https://i.imgur.com/vTzdxWa.png" alt="Walls">
+                        <div class="text">Walls<br><span class="price">$20/room</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Interior Windows" data-price="10" data-quantity="true">
+                        <img src="https://i.imgur.com/LEDxO7W.png" alt="Interior Windows">
+                        <div class="text">Interior Windows<br><span class="price">$10/window</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Inside (already emptied) Cabinets" data-price="25" data-quantity="false">
+                        <img src="https://i.imgur.com/LotZJ2L.png" alt="Inside Cabinets">
+                        <div class="text">Inside Cabinets<br><span class="price">$25</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Garage Sweep" data-price="30" data-quantity="false">
+                        <img src="https://i.imgur.com/OgRI7pQ.png" alt="Garage Sweep">
+                        <div class="text">Garage Sweep<br><span class="price">$30</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Balcony Sweep" data-price="20" data-quantity="true">
+                        <img src="https://i.imgur.com/iJq0Tco.png" alt="Balcony Sweep">
+                        <div class="text">Balcony Sweep<br><span class="price">$20/balcony</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Organization" data-price="80" data-quantity="false">
+                        <img src="https://i.imgur.com/1UnvY4A.png" alt="Organization">
+                        <div class="text">Organization<br><span class="price">$80/hour</span></div>
+                    </div>
+                    <div class="extra-item" data-name="Laundry - Wash & Fold" data-price="25" data-quantity="true">
+                        <img src="https://i.imgur.com/PyVlCMa.png" alt="Laundry - Wash & Fold">
+                        <div class="text">Laundry - Wash & Fold<br><span class="price">$25/load</span></div>
+                    </div>
+                </div>
+
+                <div class="header-gap"><h3>How Often</h3></div>
+                <div class="frequency">
+                    <div class="frequency-item" data-frequency="one-time" data-discount="0">
+                        One-time Service
+                    </div>
+                    <div class="frequency-item" data-frequency="weekly" data-discount="20">
+                        Weekly<br><span class="discount-text">Save 20%</span>
+                    </div>
+                    <div class="frequency-item" data-frequency="bi-weekly" data-discount="15">
+                        Bi-weekly<br><span class="discount-text">Save 15%</span>
+                    </div>
+                    <div class="frequency-item" data-frequency="monthly" data-discount="10">
+                        Monthly<br><span class="discount-text">Save 10%</span>
+                    </div>
+                </div>
+
+                <div class="price-display">
+                    Total Price: $<span id="totalPrice">0.00</span>
+                </div>
+                <button type="button" onclick="nextStep()">Next</button>
+            </div>
+
+            <div id="step2" class="step">
+                <h2>Contact Information</h2>
+                <input type="text" id="fullName" name="fullName" placeholder="Full Name" required>
+                <input type="email" id="email" name="email" placeholder="Email" required>
+                <input type="tel" id="phone" name="phone" placeholder="Phone Number" required>
+                <input type="text" id="address" name="address" placeholder="Address" required>
+                <button type="button" onclick="prevStep()">Back</button>
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const extras = document.querySelectorAll('.extra-item');
+            const frequencies = document.querySelectorAll('.frequency-item');
+            let selectedExtras = [];
+            let selectedFrequency = 'one-time';
+            let discount = 0;
+
+            // Slider update and price calculation
+            document.getElementById('rooms').addEventListener('input', updatePrice);
+            document.getElementById('washrooms').addEventListener('input', updatePrice);
+
+            extras.forEach(extra => {
+                extra.addEventListener('click', () => {
+                    const name = extra.dataset.name;
+                    const price = parseInt(extra.dataset.price);
+
+                    if (extra.classList.contains('selected')) {
+                        removeExtra(name);
+                        extra.classList.remove('selected');
+                    } else {
+                        addExtra(name, price);
+                        extra.classList.add('selected');
+                    }
+                });
+            });
+
+            frequencies.forEach(frequency => {
+                frequency.addEventListener('click', () => {
+                    if (frequency.classList.contains('selected')) {
+                        frequency.classList.remove('selected');
+                        selectedFrequency = 'one-time';
+                        discount = 0;
+                    } else {
+                        frequencies.forEach(freq => freq.classList.remove('selected'));
+                        frequency.classList.add('selected');
+                        selectedFrequency = frequency.dataset.frequency;
+                        discount = parseInt(frequency.dataset.discount);
+                    }
+                    updatePrice();
+                });
+            });
+
+            function addExtra(name, price) {
+                selectedExtras.push({ name, price });
+                updatePrice();
+            }
+
+            function removeExtra(name) {
+                selectedExtras = selectedExtras.filter(extra => extra.name !== name);
+                updatePrice();
+            }
+
+            function updatePrice() {
+                let rooms = parseInt(document.getElementById('rooms').value);
+                let washrooms = parseInt(document.getElementById('washrooms').value);
+                let totalPrice = (rooms * 27) + (washrooms * 30);
+
+                selectedExtras.forEach(extra => {
+                    totalPrice += extra.price;
+                });
+
+                if (discount > 0) {
+                    totalPrice = totalPrice * ((100 - discount) / 100);
+                }
+
+                document.getElementById('roomsValue').innerText = rooms;
+                document.getElementById('washroomsValue').innerText = washrooms;
+                document.getElementById('totalPrice').innerText = totalPrice.toFixed(2);
+            }
+
+            window.nextStep = function() {
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step2').classList.add('active');
+            }
+
+            window.prevStep = function() {
+                document.getElementById('step1').classList.add('active');
+                document.getElementById('step2').classList.remove('active');
+            }
+
+            document.getElementById('pricingForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const fullName = document.getElementById('fullName').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const address = document.getElementById('address').value;
+
+                const data = {
+                    rooms: parseInt(document.getElementById('rooms').value),
+                    washrooms: parseInt(document.getElementById('washrooms').value),
+                    extras: selectedExtras,
+                    frequency: selectedFrequency,
+                    discount: discount,
+                    totalPrice: parseFloat(document.getElementById('totalPrice').innerText),
+                    fullName: fullName,
+                    email: email,
+                    phone: phone,
+                    address: address
+                };
+
+                fetch('https://hook.us1.make.com/398b4zp3cx6k3o1t8zhrcwlu9wv0gj13', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.href = 'https://octomaidscleaning.com/thank-you';
+                    } else {
+                        alert('There was an error submitting the form. Please try again.');
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('There was an error submitting the form. Please try again.');
+                });
+            });
+
+            updatePrice();
+        });
+    </script>
+</body>
+</html>
